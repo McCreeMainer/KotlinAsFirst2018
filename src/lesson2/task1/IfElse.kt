@@ -2,6 +2,7 @@
 package lesson2.task1
 
 import lesson1.task1.discriminant
+import lesson1.task1.sqr
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.sqrt
@@ -138,8 +139,8 @@ fun rookOrBishopThreatens(kingX: Int, kingY: Int,
 fun triangleKind(a: Double, b: Double, c: Double): Int {
     return when {
         a + b <= c || a + c <= b || b + c <= a -> -1
-        a * a + b * b < c * c && a * a + c * c < b * b && b * b + c * c < a * a -> 0
-        a * a + b * b == c * c || a * a + c * c == b * b || b * b + c * c == a * a -> 1
+        sqr(a) + sqr(b) > sqr(c) && sqr(a) + sqr(c) > sqr(b) && sqr(b) + sqr(c) > sqr(a) -> 0
+        sqr(a) + sqr(b) == sqr(c) || sqr(a) + sqr(c) == sqr(b) || sqr(b) + sqr(c) == sqr(a) -> 1
         else -> 2
     }
 }
