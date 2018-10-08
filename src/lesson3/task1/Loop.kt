@@ -240,13 +240,13 @@ fun sin(x: Double, eps: Double): Double {
     var wop = 1.0
     var befr = 1
     var sum = 0.0
-    while (abs(pow(unit, wop) / fac) >= abs(eps)) {
-        sum += befr * pow(unit, wop) / fac
-        wop += 2
-        fac *= (fac + 1) * (fac + 2)
+    while (abs(pow(unit, wop) / factorial(fac)) >= eps) {
+        sum += befr * pow(unit, wop) / factorial(fac)
         befr *= -1
+        wop += 2
+        fac += 2
     }
-    return sum + befr * pow(unit, wop) / fac
+    return sum
 }
 /**
  * Средняя
@@ -292,25 +292,37 @@ fun revert(n: Int): Int {
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
+
 fun isPalindrome(n: Int): Boolean {
-    var len = 1
-    var x = 10
+    var x = 1
+    var y = 10
     var k = 1
+    var len = 0
     var res = true
-    var bfr = 0
-    while (n % x != n) {
+    var befr = 0
+    var aftr = 0
+    do {
         len++
         x *= 10
-    }
+    } while (n % x != n)
     if (len % 2 == 0) k = 0
+    len = (len - k) / 2
+    x /= 10
     for (i in 1..len) {
-        if ((n % pow(10.0, i * 1.0) - bfr) / pow(10.0, (i - 1) * 1.0)) {
-            pow(10.0, (i - 1) * 1.0) * pow(10.0, (len - i).toDouble())
+        if ((n - befr) / x != (n % y - aftr) / (y / 10)) {
             res = false
             break
         }
+        else {
+            befr = n / x * x
+            aftr = n % y
+            x /= 10
+            y *= 10
+        }
     }
     return res
+}
+fun main(args: Array<String>) {
 }
 /**
  * Средняя
