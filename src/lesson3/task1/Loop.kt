@@ -255,7 +255,20 @@ fun sin(x: Double, eps: Double): Double {
  * cos(x) = 1 - x^2 / 2! + x^4 / 4! - x^6 / 6! + ...
  * Нужную точность считать достигнутой, если очередной член ряда меньше eps по модулю
  */
-fun cos(x: Double, eps: Double): Double = TODO()
+fun cos(x: Double, eps: Double): Double {
+    var unit = x % (Math.PI * 2)
+    var fac = 2
+    var wop = 2.0
+    var befr = -1
+    var sum = 1.0
+    while (abs(pow(unit, wop) / factorial(fac)) >= eps) {
+        sum += befr * pow(unit, wop) / factorial(fac)
+        befr *= -1
+        wop += 2
+        fac += 2
+    }
+    return sum
+}
 
 /**
  * Средняя
@@ -322,8 +335,7 @@ fun isPalindrome(n: Int): Boolean {
     }
     return res
 }
-fun main(args: Array<String>) {
-}
+
 /**
  * Средняя
  *
@@ -332,7 +344,25 @@ fun main(args: Array<String>) {
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun hasDifferentDigits(n: Int): Boolean = TODO()
+fun hasDifferentDigits(n: Int): Boolean {
+    var len = 0
+    var tehn = 1
+    var res = true
+    do {
+        len++
+        tehn *= 10
+    } while (n % tehn != n)
+    var x = n % 10
+    var a = 0.0
+    len--
+    for (i in 0..len) {
+        a += x * pow(10.0, i * 1.0)
+    }
+    if (a.toInt() == n) {
+        res = false
+    }
+    return res
+}
 
 /**
  * Сложная
@@ -343,7 +373,21 @@ fun hasDifferentDigits(n: Int): Boolean = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun squareSequenceDigit(n: Int): Int = TODO()
+fun squareSequenceDigit(n: Int): Int {
+    var num = 0
+    var len = 0
+    var x: Int
+    while (len < n) {
+        num++
+        x = num * num
+        while (x > 0) {
+            len++
+            x /= 10
+        }
+    }
+    num = (num * num % pow(10.0, (len - n + 1) * 1.0) / pow(10.0, (len - n) * 1.0)).toInt()
+    return num
+}
 
 /**
  * Сложная
@@ -354,4 +398,25 @@ fun squareSequenceDigit(n: Int): Int = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun fibSequenceDigit(n: Int): Int = TODO()
+fun fibSequenceDigit(n: Int): Int {
+    var num = fib(n)
+    if (n > 5) {
+        var len = 5
+        num = 5
+        while (len < n) {
+            num++
+            var fbnch = fib(num)
+            while (fbnch > 0) {
+                len++
+                fbnch /= 10
+            }
+        }
+        num = (fib(num) % pow(10.0, (len - n + 1) * 1.0) / pow(10.0, (len - n) * 1.0)).toInt()
+    }
+    return num
+}
+
+
+fun main(args: Array<String>) {
+
+}
