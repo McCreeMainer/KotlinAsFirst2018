@@ -72,13 +72,11 @@ fun digitCountInNumber(n: Int, m: Int): Int =
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun digitNumber(n: Int): Int {
-    var a = 0
-    var b = n
-    do {
-        b /= 10
-        a++
-    } while (b > 0)
-    return a
+    var len = 1
+    while (n % pow(10.0, len * 1.0) != n.toDouble()) {
+        len++
+    }
+    return len
 }
 
 /**
@@ -140,20 +138,21 @@ fun minDivisor(n: Int): Int {
     return a
 }
 
-/**ч
+/**
  * Простая
  *
  * Для заданного числа n > 1 найти максимальный делитель, меньший n
  */
 fun maxDivisor(n: Int): Int {
-    var a = n / 3
-    if (n % 2 == 0) a = n / 2
-    else {
-        if (n / 3 % 2 == 0) a += 1
-        else a += 2
-        while (n % a != 0) a -= 2
+    var num = 2
+    if (n % 2 != 0) {
+        for (i in 3..n / 5 step 2) {
+            num = i
+            if (n % i == 0) break
+            if (i >= n / 5) num = n
+        }
     }
-    return a
+    return n / num
 }
 
 /**
@@ -278,14 +277,9 @@ fun cos(x: Double, eps: Double): Double {
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun revert(n: Int): Int {
-    var len = 1
+    var len = digitNumber(n)
     var num = 0.0
-    var x = 10
     var bfr = 0.0
-    while (n % x != n) {
-        len++
-        x *= 10
-    }
     if (len == 1) num = n.toDouble()
     else {
         for (i in 1..len) {
@@ -306,33 +300,15 @@ fun revert(n: Int): Int {
  * Использовать операции со строками в этой задаче запрещается.
  */
 
+
 fun isPalindrome(n: Int): Boolean {
-    var x = 1
-    var y = 10
-    var k = 1
-    var len = 0
+    var len = digitNumber(n)
     var res = true
-    var befr = 0
-    var aftr = 0
-    do {
-        len++
-        x *= 10
-    } while (n % x != n)
+    var k = 1
     if (len % 2 == 0) k = 0
-    len = (len - k) / 2
-    x /= 10
-    for (i in 1..len) {
-        if ((n - befr) / x != (n % y - aftr) / (y / 10)) {
-            res = false
-            break
-        }
-        else {
-            befr = n / x * x
-            aftr = n % y
-            x /= 10
-            y *= 10
-        }
-    }
+    var rght = revert((n % pow(10.0, (len / 2).toDouble())).toInt())
+    var lft = (n - rght) / pow(10.0, (len / 2 + k).toDouble()).toInt()
+    if (rght != lft) res = false
     return res
 }
 
@@ -345,20 +321,16 @@ fun isPalindrome(n: Int): Boolean {
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun hasDifferentDigits(n: Int): Boolean {
-    var len = 0
-    var tehn = 1
+    var len = digitNumber(n)
     var res = true
-    do {
-        len++
-        tehn *= 10
-    } while (n % tehn != n)
     var x = n % 10
-    var a = 0.0
+    var a = 0
     len--
     for (i in 0..len) {
-        a += x * pow(10.0, i * 1.0)
+        a += x
+        x *= 10
     }
-    if (a.toInt() == n) {
+    if (a == n) {
         res = false
     }
     return res
@@ -417,6 +389,4 @@ fun fibSequenceDigit(n: Int): Int {
 }
 
 
-fun main(args: Array<String>) {
 
-}
