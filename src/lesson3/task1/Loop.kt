@@ -87,20 +87,14 @@ fun digitNumber(n: Int): Int {
  */
 fun fib(n: Int): Int {
     var a = 0
-    var b = 0
+    var b = 1
     var c: Int
     for (i in 1..n) {
-        if (i == 1) {
-            b = 1
-        }
-        else {
-            c = a
-            a = b
-            b = b + c
-
-        }
+        c = a
+        a = b
+        b += c
     }
-    return b
+    return a
 }
 
 /**
@@ -127,12 +121,10 @@ fun lcm(m: Int, n: Int): Int {
 fun minDivisor(n: Int): Int {
     var a = n
     if (n % 2 == 0) a = 2
-    else {
-        for (i in 3..(n / 3) step 2) {
-            if (n % i == 0) {
-                a = i
-                break
-            }
+    else for (i in 3 until (sqrt(n.toDouble()).toInt() + 1) step 2) {
+        if (n % i == 0) {
+            a = i
+            break
         }
     }
     return a
@@ -144,15 +136,15 @@ fun minDivisor(n: Int): Int {
  * Для заданного числа n > 1 найти максимальный делитель, меньший n
  */
 fun maxDivisor(n: Int): Int {
-    var num = 2
-    if (n % 2 != 0) {
-        for (i in 3..n / 5 step 2) {
-            num = i
-            if (n % i == 0) break
-            if (i >= n / 5) num = n
+    var a = n
+    if (n % 2 == 0) a = 2
+    else for (i in 3 until (sqrt(n.toDouble()).toInt() + 1) step 2) {
+        if (n % i == 0) {
+            a = i
+            break
         }
     }
-    return n / num
+    return n / a
 }
 
 /**
@@ -306,9 +298,9 @@ fun isPalindrome(n: Int): Boolean {
     var res = true
     var k = 1
     if (len % 2 == 0) k = 0
-    var rght = revert((n % pow(10.0, (len / 2).toDouble())).toInt())
+    var rght = (n % pow(10.0, (len / 2).toDouble())).toInt()
     var lft = (n - rght) / pow(10.0, (len / 2 + k).toDouble()).toInt()
-    if (rght != lft) res = false
+    if (revert(rght) != lft) res = false
     return res
 }
 

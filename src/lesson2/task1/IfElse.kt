@@ -5,6 +5,7 @@ import lesson1.task1.discriminant
 import lesson1.task1.sqr
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
@@ -65,9 +66,9 @@ fun minBiRoot(a: Double, b: Double, c: Double): Double {
  * вернуть строку вида: «21 год», «32 года», «12 лет».
  */
 fun ageDescription(age: Int): String {
-    if ((age % 100 > 10 && age % 100 < 21) || (age % 10 > 4 && age % 10 < 10) || age % 10 == 0) return "$age лет"
-    else if (age % 10 == 1) return "$age год"
-    else return "$age года"
+    return if ((age % 100 > 10 && age % 100 < 21) || (age % 10 > 4 && age % 10 < 10) || age % 10 == 0) "$age лет"
+    else if (age % 10 == 1) "$age год"
+    else "$age года"
 }
 
 /**
@@ -81,9 +82,11 @@ fun timeForHalfWay(t1: Double, v1: Double,
                    t2: Double, v2: Double,
                    t3: Double, v3: Double): Double {
     val halfWay = (v1 * t1 + v2 * t2 + v3 * t3) / 2
-    return if (halfWay <= v1 * t1) halfWay / v1
-    else if (halfWay <= v1 * t1 + v2 * t2) (halfWay - v1 * t1) / v2 + t1
-    else (halfWay - v1 * t1 - v2 * t2) / v3 + t2 + t1
+    return when {
+        halfWay <= v1 * t1 -> halfWay / v1
+        halfWay <= v1 * t1 + v2 * t2 -> (halfWay - v1 * t1) / v2 + t1
+        else -> (halfWay - v1 * t1 - v2 * t2) / v3 + t2 + t1
+    }
 }
 
 /**
@@ -98,10 +101,14 @@ fun timeForHalfWay(t1: Double, v1: Double,
 fun whichRookThreatens(kingX: Int, kingY: Int,
                        rookX1: Int, rookY1: Int,
                        rookX2: Int, rookY2: Int): Int {
+    var x1 = kingX == rookX1
+    var y1 = kingY == rookY1
+    var x2 = kingX == rookX2
+    var y2 = kingY == rookY2
     return when {
-        kingX != rookX1 && kingY != rookY1 && kingX != rookX2 && kingY != rookY2 -> 0
-        (kingX == rookX1 || kingY == rookY1) && kingX != rookX2 && kingY != rookY2 -> 1
-        kingX != rookX1 && kingY != rookY1 && (kingX == rookX2 || kingY == rookY2) -> 2
+        !x1 && !y1 && !x2 && !y2 -> 0
+        (x1 || y1) && !x2 && !y2 -> 1
+        !x1 && !y1 && (x2 || y2) -> 2
         else -> 3
     }
 }
@@ -119,11 +126,14 @@ fun whichRookThreatens(kingX: Int, kingY: Int,
 fun rookOrBishopThreatens(kingX: Int, kingY: Int,
                           rookX: Int, rookY: Int,
                           bishopX: Int, bishopY: Int): Int {
-
+    var rx = kingX == rookX
+    var ry = kingY == rookY
+    var bx = kingX - bishopX
+    var by = kingY - bishopY
     return when {
-        abs(kingX - bishopX) == abs(kingY - bishopY) && (kingX == rookX || kingY == rookY) -> 3
-        abs(kingX - bishopX) == abs(kingY - bishopY) -> 2
-        kingX == rookX || kingY == rookY -> 1
+        abs(bx) == abs(by) && (rx || ry) -> 3
+        abs(bx) == abs(by) -> 2
+        rx || ry -> 1
         else -> 0
     }
 }
@@ -137,11 +147,14 @@ fun rookOrBishopThreatens(kingX: Int, kingY: Int,
  * Если такой треугольник не существует, вернуть -1.
  */
 fun triangleKind(a: Double, b: Double, c: Double): Int {
+    var mx = max(max(a, b), max(a, c))
+    var md = min(max(a, b), max(a, c))
+    var mn = min(min(a, b), min(a, c))
     return when {
-        a + b <= c || a + c <= b || b + c <= a -> -1
-        sqr(a) + sqr(b) > sqr(c) && sqr(a) + sqr(c) > sqr(b) && sqr(b) + sqr(c) > sqr(a) -> 0
-        sqr(a) + sqr(b) == sqr(c) || sqr(a) + sqr(c) == sqr(b) || sqr(b) + sqr(c) == sqr(a) -> 1
-        else -> 2
+        md + mn <= mx -> -1
+        sqr(mn) + sqr(md) < sqr(mx) -> 2
+        sqr(mn) + sqr(md) == sqr(mx) -> 1
+        else -> 0
     }
 }
 
@@ -154,11 +167,5 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
  * Если пересечения нет, вернуть -1.
  */
 fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
-    return when {
-        a < c && d < b -> d - c
-        c < a && b < d -> b - a
-        c <= a && a <= d && d <= b -> d - a
-        a <= c && c <= b && b <= d -> b - c
-        else -> -1
-    }
+    TODO()
 }
