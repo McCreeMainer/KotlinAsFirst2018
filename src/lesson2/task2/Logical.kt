@@ -3,6 +3,8 @@ package lesson2.task2
 
 import lesson1.task1.sqr
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
@@ -37,12 +39,8 @@ fun isNumberHappy(number: Int): Boolean {
  * Определить, угрожают ли они друг другу. Вернуть true, если угрожают.
  * Считать, что ферзи не могут загораживать друг друга.
  */
-fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean {
-    return when {
-        x1 == x2 || y1 == y2 || abs(x1 - x2) == abs(y1 - y2) -> true
-        else -> false
-    }
-}
+fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean =
+        x1 == x2 || y1 == y2 || abs(x1 - x2) == abs(y1 - y2)
 
 
 /**
@@ -51,16 +49,9 @@ fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean {
  * Дан номер месяца (от 1 до 12 включительно) и год (положительный).
  * Вернуть число дней в этом месяце этого года по григорианскому календарю.
  */
-fun daysInMonth(month: Int, year: Int): Int {
-    return if (month == 2) {
-        if (year % 4 != 0 || (year % 100 == 0 && year % 400 != 0)) 28
-        else 29
-    }
-    else {
-        if (month <= 7 && month % 2 == 1 || month > 7 && month % 2 == 0) 31
-        else 30
-    }
-}
+fun daysInMonth(month: Int, year: Int): Int =
+        if (month == 2) if (year % 4 != 0 || (year % 100 == 0 && year % 400 != 0)) 28 else 29
+        else if (month <= 7 && month % 2 == 1 || month > 7 && month % 2 == 0) 31 else 30
 
 /**
  * Средняя
@@ -70,13 +61,8 @@ fun daysInMonth(month: Int, year: Int): Int {
  * Вернуть true, если утверждение верно
  */
 fun circleInside(x1: Double, y1: Double, r1: Double,
-                 x2: Double, y2: Double, r2: Double): Boolean {
-    val rr = sqr(x1 - x2) + sqr(y1 - y2)
-    return when {
-        sqrt(rr) + r1 <= r2 -> true
-        else -> false
-    }
-}
+                 x2: Double, y2: Double, r2: Double): Boolean =
+        sqrt(sqr(x1 - x2) + sqr(y1 - y2)) + r1 <= r2
 
 /**
  * Средняя
@@ -88,22 +74,7 @@ fun circleInside(x1: Double, y1: Double, r1: Double,
  * Вернуть true, если кирпич пройдёт
  */
 fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean {
-    if (a >= b && a >= c) {
-        return when {
-            b <= r && c <= s || c <= r && b <= s -> true
-            else -> false
-        }
-    }
-    else if (b >= a && b >= c) {
-        return when {
-            a <= r && c <= s || c <= r && a <= s -> true
-            else -> false
-        }
-    }
-    else {
-        return when {
-            b <= r && a <= s || a <= r && b <= s -> true
-            else -> false
-        }
-    }
+    val w = min(min(a, b), c)
+    val h = a + b + c - max(max(a, b), c) - w
+    return (w <= r && h <= s) || (w <= s && h <= r)
 }

@@ -5,6 +5,7 @@ package lesson4.task1
 import lesson1.task1.discriminant
 import lesson1.task1.quadraticRootProduct
 import lesson1.task1.sqr
+import lesson3.task1.digitNumber
 import lesson3.task1.isPrime
 import java.lang.Math.min
 import java.lang.Math.pow
@@ -246,10 +247,8 @@ fun factorize(n: Int): List<Int> {
  * Результат разложения вернуть в виде строки, например 75 -> 3*5*5
  * Множители в результирующей строке должны располагаться по возрастанию.
  */
-fun factorizeToString(n: Int): String {
-    var lmnts = factorize(n)
-    return lmnts.joinToString(separator = "*")
-}
+fun factorizeToString(n: Int): String = factorize(n).joinToString(separator = "*")
+
 
 /**
  * Средняя
@@ -327,17 +326,31 @@ fun decimalFromString(str: String, base: Int): Int {
  * Например: 23 = XXIII, 44 = XLIV, 100 = C
  */
 fun roman(n: Int): String {
-    var l = listOf(1, 5, 10, 50, 100, 500, 1000)
-    var num = mutableListOf<Int>()
-    var x = n - l[6]
-    for (i in 1 until l.size) {
-        if (n < l[i]) {
-            x = min(l[i] - n, n - l[i - 1])
-            break
+    var l = listOf("I", "V", "X", "L", "C", "D", "M")
+    var num = mutableListOf<String>()
+    var x = n
+    for (i in 0..6 step 2) {
+        if (x == 0) break else {
+            var len = x % 10
+            if (len != 0) when {
+                len in 1..3 -> for (j in 1..len) num.add(l[i])
+                len == 4 -> {
+                    num.add(l[i + 1])
+                    num.add(l[i])
+                }
+                len in 5..8 -> {
+                    for (j in 5 until len) num.add(l[i])
+                    num.add(l[i + 1])
+                }
+                else -> {
+                    num.add(l[i + 2])
+                    num.add(l[i])
+                }
+            }
+            x /= 10
         }
     }
-    if (x == 0) num.add(n)
-    return "$num"
+    return num.reversed().joinToString(separator = "")
 }
 
 /**
@@ -348,37 +361,57 @@ fun roman(n: Int): String {
  * 23964 = "двадцать три тысячи девятьсот шестьдесят четыре"
  */
 fun russian(n: Int): String {
-    val m = arrayOf(
-        arrayOf("", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"),
-        arrayOf("", "", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят",
-            "девяносто"),
-        arrayOf("сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот")
+    val l = arrayOf(
+            arrayOf("", "один ", "два ", "три ", "четыре ", "пять ", "шесть ", "семь ", "восемь ", "девять "),
+            arrayOf("", "", "двадцать ", "тридцать ", "сорок ", "пятьдесят ", "шестьдесят ", "семьдесят ",
+                    "восемьдесят ", "девяносто "),
+            arrayOf("", "сто ", "двести ", "триста ", "четыреста ", "пятьсот ", "шестьсот ", "семьсот ", "восемьсот ",
+                    "девятьсот ")
     )
-    val t = arrayOf(
-        arrayOf(""),
-        arrayOf("тысяч", "а", "и", ""),
-        arrayOf("миллион", "", "а", "ов"),
-        arrayOf("миллиард", "", "а", "")
+    val thn = arrayOf("десять ", "одинадцать ", "двенадцать ", "тринадцать ", "четырнадцать ", "пятнадцать ",
+            "шестнадцать ", "семнадцать ", "восемнадцать ", "девятнадцать ")
+    val end = arrayOf(
+            arrayOf("", " ", " ", " "),
+            arrayOf("тысяч", "а ", "и ", " "),
+            arrayOf("миллион", " ", "а ", "ов "),
+            arrayOf("миллиард", " ", "а ", "ов ")
     )
-    val i = arrayOf(
-        arrayOf("одна", "две", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"),
-        arrayOf("десять", "одинадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать",
-            "семнадцать", "восемнадцать", "девятнадцать")
-    )
+    val ix = arrayOf("", "одна ", "две ", "три ", "четыре ", "пять ", "шесть ", "семь ", "восемь ", "девять ")
+    var num = mutableListOf<Int>()
     var str = ""
     var x = n
-    val num = mutableListOf<Int>()
     while (x != 0) {
         num.add(x % 1000)
         x /= 1000
     }
+    num = num.asReversed()
     for (i in 0 until num.size) {
-        var ttt = num[num.size - i - 1].toString()
-        for (j in 0 until ttt.length) {
-            var sas = num.size - i - 1
-            var sos = ttt[j].toString().toInt()
-            str += m[sas][sos]
+        var nxt = if (num[i] % 100 in 10..19) true else false
+        var ndng = ""
+        var len = digitNumber(num[i])
+        for (j in 0 until len) {
+            var sas = num[i] / pow(10.0, (len - 1 - j).toDouble()).toInt()
+            str += when {
+                j == len - 1 -> when {
+                    nxt -> ""
+                    i == num.size - 2 -> ix[sas]
+                    else -> l[0][sas]
+                }
+                j == len - 2 -> if (nxt) thn[num[i] % 10] else l[1][sas]
+                else -> l[2][sas]
+            }
+            num[i] %= pow(10.0, (len - 1 - j).toDouble()).toInt()
+            if (num[i] == 0) {
+                var a = when {
+                    sas == 1 -> 1
+                    sas in 2..4 -> 2
+                    sas in 5..9 -> 3
+                    else -> 3
+                }
+                ndng = end[num.size - i - 1][a]
+            }
         }
+        str += end[num.size - i - 1][0] + ndng
     }
-    return str
+    return str.trim()
 }
