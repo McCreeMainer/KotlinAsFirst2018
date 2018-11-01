@@ -258,7 +258,7 @@ fun canBuildFrom(chars: List<Char>, word: String): Boolean {
     var ch = chars.toSet()
     var wrd = word.toSet()
     var res = true
-    for (e in wrd) if (e !in ch) {
+    for (e in wrd) if (e.toUpperCase() !in ch && e.toLowerCase() !in ch) {
         res = false
         break
     }
