@@ -403,9 +403,9 @@ fun russian(n: Int): String {
             num[i] %= pow(10.0, (len - 1 - j).toDouble()).toInt()
             if (num[i] == 0) {
                 var a = when {
-                    sas == 1 -> 1
-                    sas in 2..4 -> 2
                     sas in 5..9 || nxt -> 3
+                    sas in 2..4 -> 2
+                    sas == 1 -> 1
                     else -> 3
                 }
                 ndng = end[num.size - i - 1][a]
