@@ -105,11 +105,19 @@ fun fib(n: Int): Int {
  * Для заданных чисел m и n найти наименьшее общее кратное, то есть,
  * минимальное число k, которое делится и на m и на n без остатка
  */
-fun lcm(m: Int, n: Int): Int {
-    var a = max(m, n)
-    while (a % m != 0 || a % n != 0) a += max(m, n)
-    return a
+
+fun gcd(m: Int, n: Int): Int {
+    var a = m
+    var b = n
+    while ((a != 1) && (b != 1)) when {
+        max(a, b) % min(a, b) == 0 -> return min(a, b)
+        a > b -> a %= b
+        else -> b %= a
+    }
+    return 1
 }
+
+fun lcm(m: Int, n: Int): Int = m * n / gcd(m, n)
 
 /**
  * Простая
@@ -145,16 +153,7 @@ fun maxDivisor(n: Int): Int = n / minDivisor(n)
  * Взаимно простые числа не имеют общих делителей, кроме 1.
  * Например, 25 и 49 взаимно простые, а 6 и 8 -- нет.
  */
-fun isCoPrime(m: Int, n: Int): Boolean {
-    var a = m
-    var b = n
-    while ((a != 1) && (b != 1)) when {
-        max(a, b) % min(a, b) == 0 -> return false
-        a > b -> a %= b
-        else -> b %= a
-    }
-    return true
-}
+fun isCoPrime(m: Int, n: Int): Boolean = gcd(m, n) == 1
 
 /**
  * Простая

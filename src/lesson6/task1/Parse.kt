@@ -41,7 +41,7 @@ fun timeSecondsToStr(seconds: Int): String {
 
 /**
  * Пример: консольный ввод
- */
+
 fun main(args: Array<String>) {
     println("Введите время в формате ЧЧ:ММ:СС")
     val line = readLine()
@@ -58,7 +58,7 @@ fun main(args: Array<String>) {
         println("Достигнут <конец файла> в процессе чтения строки. Программа прервана")
     }
 }
-
+*/
 
 /**
  * Средняя
@@ -71,7 +71,27 @@ fun main(args: Array<String>) {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String = TODO()
+
+fun dateStrToDigit(str: String): String {
+    var sas = str.split(" ").toMutableList()
+    val mnts = mapOf("января" to "01", "февраля" to "02", "марта" to "03", "апреля" to "04", "мая" to "05",
+            "июня" to "06", "июля" to "07", "августа" to "08", "сентября" to "09", "октября" to "10", "ноября" to "11",
+            "декабря" to "12")
+    val dys = mapOf("января" to 31, "февраля" to 28, "марта" to 31, "апреля" to 30, "мая" to 31,
+            "июня" to 30, "июля" to 31, "августа" to 31, "сентября" to 30, "октября" to 31, "ноября" to 30,
+            "декабря" to 30)
+    try {
+        if (sas.size != 3 || mnts[sas[1]] == null || dys[sas[1]]!!.toInt() < sas[0].toInt()) return ""
+        else {
+            sas[1] = mnts[sas[1]].toString()
+            if (sas[0].toInt() < 10) sas[0] = "0" + sas[0]
+            return sas.joinToString(separator = ".")
+        }
+    }
+    catch (e: IndexOutOfBoundsException) {
+        return ""
+    }
+}
 
 /**
  * Средняя
@@ -83,7 +103,25 @@ fun dateStrToDigit(str: String): String = TODO()
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-fun dateDigitToStr(digital: String): String = TODO()
+fun dateDigitToStr(digital: String): String {
+    var sas = digital.split(".").toMutableList()
+    val mnts = mapOf("01" to "января", "02" to "февраля", "03" to "марта", "04" to "апреля", "05" to "мая",
+            "06" to "июня", "07" to "июля", "08" to "августа", "09" to "сентября", "10" to "октября", "11" to "ноября",
+            "12" to "декабря")
+    val dys = mapOf("01" to 31, "02" to 28, "03" to 31, "04" to 30, "05" to 31, "06" to 30, "07" to 31, "08" to 31,
+            "09" to 30, "10" to 31, "11" to 30, "12" to 31)
+    try {
+        if (sas.size != 3 || mnts[sas[1]] == null || dys[sas[1]]!!.toInt() < sas[0].toInt()) return ""
+        else {
+            sas[1] = mnts[sas[1]].toString()
+            sas[0] = sas[0].toInt().toString()
+            return sas.joinToString(separator = " ")
+        }
+    }
+    catch (e: IndexOutOfBoundsException) {
+        return ""
+    }
+}
 
 /**
  * Средняя
@@ -97,7 +135,10 @@ fun dateDigitToStr(digital: String): String = TODO()
  * Все символы в номере, кроме цифр, пробелов и +-(), считать недопустимыми.
  * При неверном формате вернуть пустую строку
  */
-fun flattenPhoneNumber(phone: String): String = TODO()
+fun flattenPhoneNumber(phone: String): String {
+    //var res = phone
+    TODO()
+}
 
 /**
  * Средняя
@@ -208,3 +249,33 @@ fun fromRoman(roman: String): Int = TODO()
  *
  */
 fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()
+
+/*
+fun main(args: Array<String>) {
+    val names = mutableListOf<String>("Агеев Артём Владиславович", "Аксенова Аделина Александровна",
+            "Ал-Хурани Робин Азер", "Безбородов Илья Григорьевич", "Брывкин Даниил Сергеевич",
+            "Грачев Анатолий Андреевич", "Грязных Вадим Сергеевич", "Давладов Артем Евгеньевич",
+            "Кобыжев Александр Михайлович", "Лифанов Никита Дмитриевич","Лихолетов Михаил Данилович",
+            "Мамаев Александр Александрович", "Нурмагомедов Султанмагомед Хайрудинович",
+            "Рубан Станислав Дмитриевич", "Панченко Кирилл Андреевич", "Петровски Християн",
+            "Прозоров Филипп Антонович", "Самсонов Сергей Игоревич", "Смирнов Лев Дмитриевич",
+            "Ткаченко Даниил Юрьевич", "Царькова Юлия Сергеевна", "Шалыгин Дмитрий Артёмович",
+            "Шерепа Никита Максимович", "Эдуардова Александра Сергеевна")
+    val listOne = mutableListOf<String>()
+    val listTwo = mutableListOf<String>()
+    for (i in 0..23) if (Math.random() > 0.5 && listOne.size < 12) listOne.add(names[i])
+    else if (listTwo.size < 12) listTwo.add(names[i]) else listOne.add(names[i])
+    println("Группа номер Раз:")
+    for (i in 0..11) {
+        var n = i + 1
+        var l = listOne[i]
+        println("$n) $l")
+    }
+    println()
+    println("Группа номер Два:")
+    for (i in 0..11) {
+        var n = i + 1
+        var l = listTwo[i]
+        println("$n) $l")
+    }
+}*/
