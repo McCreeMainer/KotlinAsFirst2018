@@ -2,6 +2,8 @@
 
 package lesson6.task1
 
+import lesson2.task2.daysInMonth
+
 /**
  * Пример
  *
@@ -43,22 +45,22 @@ fun timeSecondsToStr(seconds: Int): String {
  * Пример: консольный ввод
 
 fun main(args: Array<String>) {
-    println("Введите время в формате ЧЧ:ММ:СС")
-    val line = readLine()
-    if (line != null) {
-        val seconds = timeStrToSeconds(line)
-        if (seconds == -1) {
-            println("Введённая строка $line не соответствует формату ЧЧ:ММ:СС")
-        }
-        else {
-            println("Прошло секунд с начала суток: $seconds")
-        }
-    }
-    else {
-        println("Достигнут <конец файла> в процессе чтения строки. Программа прервана")
-    }
+println("Введите время в формате ЧЧ:ММ:СС")
+val line = readLine()
+if (line != null) {
+val seconds = timeStrToSeconds(line)
+if (seconds == -1) {
+println("Введённая строка $line не соответствует формату ЧЧ:ММ:СС")
 }
-*/
+else {
+println("Прошло секунд с начала суток: $seconds")
+}
+}
+else {
+println("Достигнут <конец файла> в процессе чтения строки. Программа прервана")
+}
+}
+ */
 
 /**
  * Средняя
@@ -73,24 +75,12 @@ fun main(args: Array<String>) {
  */
 
 fun dateStrToDigit(str: String): String {
-    var sas = str.split(" ").toMutableList()
-    val mnts = mapOf("января" to "01", "февраля" to "02", "марта" to "03", "апреля" to "04", "мая" to "05",
-            "июня" to "06", "июля" to "07", "августа" to "08", "сентября" to "09", "октября" to "10", "ноября" to "11",
-            "декабря" to "12")
-    val dys = mapOf("января" to 31, "февраля" to 28, "марта" to 31, "апреля" to 30, "мая" to 31,
-            "июня" to 30, "июля" to 31, "августа" to 31, "сентября" to 30, "октября" to 31, "ноября" to 30,
-            "декабря" to 30)
-    try {
-        if (sas.size != 3 || mnts[sas[1]] == null || dys[sas[1]]!!.toInt() < sas[0].toInt()) return ""
-        else {
-            sas[1] = mnts[sas[1]].toString()
-            if (sas[0].toInt() < 10) sas[0] = "0" + sas[0]
-            return sas.joinToString(separator = ".")
-        }
-    }
-    catch (e: IndexOutOfBoundsException) {
-        return ""
-    }
+    val sas = str.split(" ").toList()
+    val mnts = mapOf("января" to 1, "февраля" to 2, "марта" to 3, "апреля" to 4, "мая" to 5,
+            "июня" to 6, "июля" to 7, "августа" to 8, "сентября" to 9, "октября" to 10, "ноября" to 11,
+            "декабря" to 12)
+    return if (sas.size != 3 || mnts[sas[1]] == null || daysInMonth(mnts[sas[1]]!!, sas[2].toInt()) < sas[0].toInt()) ""
+    else String.format("%02d.%02d.%d", sas[0].toInt(), mnts[sas[1]], sas[2].toInt())
 }
 
 /**
@@ -104,23 +94,12 @@ fun dateStrToDigit(str: String): String {
  * входными данными.
  */
 fun dateDigitToStr(digital: String): String {
-    var sas = digital.split(".").toMutableList()
+    var sas = digital.split(".").toList()
     val mnts = mapOf("01" to "января", "02" to "февраля", "03" to "марта", "04" to "апреля", "05" to "мая",
             "06" to "июня", "07" to "июля", "08" to "августа", "09" to "сентября", "10" to "октября", "11" to "ноября",
             "12" to "декабря")
-    val dys = mapOf("01" to 31, "02" to 28, "03" to 31, "04" to 30, "05" to 31, "06" to 30, "07" to 31, "08" to 31,
-            "09" to 30, "10" to 31, "11" to 30, "12" to 31)
-    try {
-        if (sas.size != 3 || mnts[sas[1]] == null || dys[sas[1]]!!.toInt() < sas[0].toInt()) return ""
-        else {
-            sas[1] = mnts[sas[1]].toString()
-            sas[0] = sas[0].toInt().toString()
-            return sas.joinToString(separator = " ")
-        }
-    }
-    catch (e: IndexOutOfBoundsException) {
-        return ""
-    }
+    return if (sas.size != 3 || mnts[sas[1]] == null || daysInMonth(sas[1].toInt(), sas[2].toInt()) < sas[0].toInt()) ""
+    else String.format("%d %s %d", sas[0].toInt(), mnts[sas[1]], sas[2].toInt())
 }
 
 /**
@@ -135,10 +114,9 @@ fun dateDigitToStr(digital: String): String {
  * Все символы в номере, кроме цифр, пробелов и +-(), считать недопустимыми.
  * При неверном формате вернуть пустую строку
  */
-fun flattenPhoneNumber(phone: String): String {
-    //var res = phone
-    TODO()
-}
+fun flattenPhoneNumber(phone: String): String =
+        if (!phone.matches(Regex("""^(?:\+\d+)?[-\s]*(?:\([\s-]*\d+[\s-]*\))?[-\s]*\d[-\d\s]*$"""))) ""
+        else phone.replace("""[-()\s]+""".toRegex(), "")
 
 /**
  * Средняя
@@ -150,7 +128,8 @@ fun flattenPhoneNumber(phone: String): String {
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = TODO()
+fun bestLongJump(jumps: String): Int = if (!jumps.matches(Regex("""^(?:[-%]|\d+)(?:\s(?:\d+|[-%]))*$"""))) -1
+else jumps.split(" ").filter { it.matches(Regex("""\d+""")) }.map { it.toInt() }.max() ?: -1
 
 /**
  * Сложная
@@ -162,7 +141,9 @@ fun bestLongJump(jumps: String): Int = TODO()
  * Прочитать строку и вернуть максимальную взятую высоту (230 в примере).
  * При нарушении формата входной строки вернуть -1.
  */
-fun bestHighJump(jumps: String): Int = TODO()
+fun bestHighJump(jumps: String): Int = jumps.split(Regex("""(?<=[-%+])\s""")).filter { it.contains("+") }
+        .map { it.split(" ")[0].toInt() }.max() ?: -1
+
 
 /**
  * Сложная
@@ -173,7 +154,11 @@ fun bestHighJump(jumps: String): Int = TODO()
  * Вернуть значение выражения (6 для примера).
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
-fun plusMinus(expression: String): Int = TODO()
+fun plusMinus(expression: String): Int =
+        if (expression.matches(Regex("""^(?:\d+)(?:\s[-+]\s\d+)*$""")))
+            expression.split(Regex("""\s+(?=[-+])""")).map { it.replace(" ", "").toInt() }.sum()
+        else throw IllegalArgumentException()
+
 
 /**
  * Сложная
@@ -184,7 +169,8 @@ fun plusMinus(expression: String): Int = TODO()
  * Вернуть индекс начала первого повторяющегося слова, или -1, если повторов нет.
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
-fun firstDuplicateIndex(str: String): Int = TODO()
+fun firstDuplicateIndex(str: String): Int =
+        Regex("""([а-я]+)\s+\1""").find(str.toLowerCase())?.range?.first ?: -1
 
 /**
  * Сложная
@@ -197,7 +183,11 @@ fun firstDuplicateIndex(str: String): Int = TODO()
  * или пустую строку при нарушении формата строки.
  * Все цены должны быть больше либо равны нуля.
  */
-fun mostExpensive(description: String): String = TODO()
+fun mostExpensive(description: String): String =
+        if (description.matches(Regex("""(?:[А-Я][а-я]*\s\d+.?\d)(?:;\s[А-Я][а-я]*\s\d+.?\d)*""")))
+            description.split("""\s*;\s*""".toRegex()).maxBy { it.split(" ")[1].toDouble() }
+                    ?.split(" ")?.get(0) ?: ""
+        else ""
 
 /**
  * Сложная
@@ -210,7 +200,19 @@ fun mostExpensive(description: String): String = TODO()
  *
  * Вернуть -1, если roman не является корректным римским числом
  */
-fun fromRoman(roman: String): Int = TODO()
+fun fromRoman(roman: String): Int {
+    var res = 0
+    var prv = 0
+    val sas = mapOf('I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000)
+    val pattern = """^M{0,3}(?:|CM|DC{0,3}|CD|C{0,3})?(?:XC|LX{0,3}|XL|X{0,3})?(?:IX|VI{0,3}|IV|I{1,3})?$""".toRegex()
+    if (!roman.matches(pattern)) return -1
+    for (i in roman.length - 1 downTo 0) {
+        val number = sas[roman[i]] ?: 0
+        res += if (number < prv) number * -1 else number
+        prv = number
+    }
+    return res
+}
 
 /**
  * Очень сложная
@@ -248,34 +250,47 @@ fun fromRoman(roman: String): Int = TODO()
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()
+fun nxt(commands: String, i: Int): Int {
+    var sas = 0
+    for (j in i + 1 until commands.length) when (commands[j]) {
+        '[' -> sas++
+        ']' -> if (sas > 0) sas-- else return j
+    }
+    throw IllegalArgumentException("rrr")
+}
 
-/*
-fun main(args: Array<String>) {
-    val names = mutableListOf<String>("Агеев Артём Владиславович", "Аксенова Аделина Александровна",
-            "Ал-Хурани Робин Азер", "Безбородов Илья Григорьевич", "Брывкин Даниил Сергеевич",
-            "Грачев Анатолий Андреевич", "Грязных Вадим Сергеевич", "Давладов Артем Евгеньевич",
-            "Кобыжев Александр Михайлович", "Лифанов Никита Дмитриевич","Лихолетов Михаил Данилович",
-            "Мамаев Александр Александрович", "Нурмагомедов Султанмагомед Хайрудинович",
-            "Рубан Станислав Дмитриевич", "Панченко Кирилл Андреевич", "Петровски Християн",
-            "Прозоров Филипп Антонович", "Самсонов Сергей Игоревич", "Смирнов Лев Дмитриевич",
-            "Ткаченко Даниил Юрьевич", "Царькова Юлия Сергеевна", "Шалыгин Дмитрий Артёмович",
-            "Шерепа Никита Максимович", "Эдуардова Александра Сергеевна")
-    val listOne = mutableListOf<String>()
-    val listTwo = mutableListOf<String>()
-    for (i in 0..23) if (Math.random() > 0.5 && listOne.size < 12) listOne.add(names[i])
-    else if (listTwo.size < 12) listTwo.add(names[i]) else listOne.add(names[i])
-    println("Группа номер Раз:")
-    for (i in 0..11) {
-        var n = i + 1
-        var l = listOne[i]
-        println("$n) $l")
+fun prv(commands: String, i: Int): Int {
+    var sas = 0
+    for (j in i - 1 downTo 0) when (commands[j]) {
+        ']' -> sas++
+        '[' -> if (sas > 0) sas-- else return j
     }
-    println()
-    println("Группа номер Два:")
-    for (i in 0..11) {
-        var n = i + 1
-        var l = listTwo[i]
-        println("$n) $l")
+    throw IllegalArgumentException("rrr")
+}
+
+fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
+    val sas = mutableListOf<Char>()
+    for (s in commands) {
+        if (s != '[' && s != ']') continue
+        if (s == '[') sas.add(s)
+        else if (s == ']' && sas.last() == '[') sas.removeAt(sas.lastIndex)
     }
-}*/
+    var cmds = 0
+    var position = cells / 2
+    val cell = MutableList(cells) { 0 }
+    if (!commands.matches(Regex("""^[-+<>\[\]\s]*$""")) || sas.isNotEmpty()) throw IllegalArgumentException()
+    for (i in 0 until limit) {
+        if (cmds >= commands.length) break
+        when (commands[cmds]) {
+            '>' -> position++
+            '<' -> position--
+            '+' -> cell[position]++
+            '-' -> cell[position]--
+            '[' -> if (cell[position] == 0) cmds = nxt(commands, cmds)
+            ']' -> if (cell[position] != 0) cmds = prv(commands, cmds)
+        }
+        if (position !in 0 until cells) throw IllegalStateException()
+        cmds++
+    }
+    return cell.toList()
+}
