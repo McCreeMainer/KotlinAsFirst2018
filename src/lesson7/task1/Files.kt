@@ -55,18 +55,15 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
  *
  */
 fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
-    var reader = File(inputName).bufferedReader().readLines().joinToString("").toLowerCase()
+    val reader = File(inputName).bufferedReader().readLines().joinToString("").toLowerCase()
     val mp = mutableMapOf<String, Int>()
-    var t = true
-    var i = 0
     substrings.forEach {
-        t = Regex(it).find(reader, i) != null
-        while (t) {
+        mp[it] = 0
+        var t = Regex(it.toLowerCase()).find(reader)
+        while (t != null) {
             mp[it] = (mp[it] ?: 0) + 1
-
+            t = Regex(it.toLowerCase()).find(reader, t.range.first + 1)
         }
-        i = 0
-        t = true
     }
     return mp
 }
@@ -85,7 +82,12 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  *
  */
 fun sibilants(inputName: String, outputName: String) {
-    TODO()
+    val reader = File(inputName).bufferedReader().readLines()
+    val pat = Regex("""(?<[Жж]|[Чч]|[Шш]|[Щщ])[Ыы]|[Яя]|[Юю]""")
+    val notpat = Regex("""^(?:[Жж][Юю][Рр][Ии])|(?:[Бб][Рр][Оо][Шш][Юю][Рр][Аа])|(?:[Пп][Аа][Рр][Аа][Шш][Юю][Тт])""")
+    File(outputName).bufferedWriter().use {
+
+    }
 }
 
 /**
