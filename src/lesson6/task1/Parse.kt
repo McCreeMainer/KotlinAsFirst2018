@@ -128,7 +128,7 @@ fun flattenPhoneNumber(phone: String): String =
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = if (!jumps.matches(Regex("""^(?:[-%]|\d+)(?:\s(?:\d+|[-%]))*$"""))) -1
+fun bestLongJump(jumps: String): Int = if (!jumps.matches(Regex("""^(?:[-%]|\d+)(?:\s+(?:\d+|[-%]))*$"""))) -1
 else jumps.split(" ").filter { it.matches(Regex("""\d+""")) }.map { it.toInt() }.max() ?: -1
 
 /**
@@ -170,7 +170,7 @@ fun plusMinus(expression: String): Int =
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
 fun firstDuplicateIndex(str: String): Int =
-        Regex("""([а-я]+)\s+\1""").find(str.toLowerCase())?.range?.first ?: -1
+        Regex("""(.+)\s\1""").find(str.toLowerCase())?.range?.first ?: -1
 
 /**
  * Сложная
@@ -185,7 +185,7 @@ fun firstDuplicateIndex(str: String): Int =
  */
 fun mostExpensive(description: String): String =
         if (description.matches(Regex("""(?:[А-Я][а-я]*\s\d+.?\d)(?:;\s[А-Я][а-я]*\s\d+.?\d)*""")))
-            description.split("""\s*;\s*""".toRegex()).maxBy { it.split(" ")[1].toDouble() }
+            description.split(Regex("""\s*;\s*""")).maxBy { it.split(" ")[1].toDouble() }
                     ?.split(" ")?.get(0) ?: ""
         else ""
 
@@ -205,7 +205,7 @@ fun fromRoman(roman: String): Int {
     var prv = 0
     val sas = mapOf('I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000)
     val pattern = """^M{0,3}(?:|CM|DC{0,3}|CD|C{0,3})?(?:XC|LX{0,3}|XL|X{0,3})?(?:IX|VI{0,3}|IV|I{1,3})?$""".toRegex()
-    if (!roman.matches(pattern)) return -1
+    if (!roman.matches(pattern) || roman.isEmpty()) return -1
     for (i in roman.length - 1 downTo 0) {
         val number = sas[roman[i]] ?: 0
         res += if (number < prv) number * -1 else number
@@ -256,7 +256,7 @@ fun nxt(commands: String, i: Int): Int {
         '[' -> sas++
         ']' -> if (sas > 0) sas-- else return j
     }
-    throw IllegalArgumentException("rrr")
+    throw IllegalArgumentException("")
 }
 
 fun prv(commands: String, i: Int): Int {
@@ -265,7 +265,7 @@ fun prv(commands: String, i: Int): Int {
         ']' -> sas++
         '[' -> if (sas > 0) sas-- else return j
     }
-    throw IllegalArgumentException("rrr")
+    throw IllegalArgumentException("")
 }
 
 fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
@@ -274,6 +274,7 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
         if (s != '[' && s != ']') continue
         if (s == '[') sas.add(s)
         else if (s == ']' && sas.last() == '[') sas.removeAt(sas.lastIndex)
+        else throw IllegalArgumentException()
     }
     var cmds = 0
     var position = cells / 2
