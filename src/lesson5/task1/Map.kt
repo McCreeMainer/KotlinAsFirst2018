@@ -2,6 +2,8 @@
 
 package lesson5.task1
 
+import kotlin.math.max
+
 /**
  * Пример
  *
@@ -201,16 +203,24 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  *        )
  */
 fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> {
-    val sas = mutableMapOf<String, MutableSet<String>>()
-    var res = mutableMapOf<String, MutableSet<String>>()
-    for ((k) in friends) sas[k] = friends[k]!!.toMutableSet()
-    while (sas != res) {
-        res = sas
-        for ((k, vl) in res) for (i in vl)
-            if (i in res) sas[k] = sas[k]!!.union(res[i]!!).toMutableSet()
-            else sas[i] = mutableSetOf()
+    val sas = friends.toMutableMap()
+    var res = friends.toMutableMap()
+    sas.forEach {
+        it.value.forEach { init ->
+            if (sas[init] == null) sas[init] = mutableSetOf()
+        }
     }
-    res.map { if (it.value.contains(it.key)) it.value.remove(it.key) }
+    do {
+        res = sas
+        sas.forEach {
+            it.value.forEach { init ->
+                if (res.containsKey(init)) sas[it.key] = it.value.union(sas[init] ?: setOf()).toMutableSet()
+            }
+        }
+    } while (sas != res)
+    sas.forEach {
+        it.value.forEach { init -> if (init == it.key) res[it.key] = res[it.key]!! - init }
+    }
     return res
 }
 
@@ -332,13 +342,26 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  */
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
     if (treasures.isEmpty()) return setOf()
-    val list = treasures.map { it.key to it.value }.sortedBy { it.second.second / it.second.first }
-    val sas = mutableSetOf<String>()
-    var mpt = 0
-    for ((k, vl) in list) {
-        if (mpt + vl.first > capacity) break
-        sas.add(k)
-        mpt += vl.first
+    val list = mutableMapOf<String, MutableList<Int>>()
+    val sas = mutableMapOf<String, MutableList<String>>()
+    var cost = MutableList(capacity - 1) { 0 }
+    var tresur = MutableList(capacity - 1) { treasures.keys.toList()[0] }
+    treasures.forEach {
+        for (i in 0..capacity) {
+            if (i < it.value.first) {
+                list[it.key]?.add(cost[i])
+            }
+            else if (cost[i] > cost[i - it.value.first] + it.value.second) {
+                list[it.key]!!.add(cost[i])
+                sas[it.key]?.add(tresur[i])
+            }
+            else {
+                list[it.key]?.add(cost[i - it.value.first] + it.value.second)
+            }
+        }
+        cost = list[it.key] ?: cost
+        tresur = sas[it.key] ?: tresur
     }
-    return sas.toSet()
+
+    return setOf()
 }

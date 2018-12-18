@@ -129,7 +129,7 @@ fun flattenPhoneNumber(phone: String): String =
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
 fun bestLongJump(jumps: String): Int = if (!jumps.matches(Regex("""^(?:[-%]|\d+)(?:\s+(?:\d+|[-%]))*$"""))) -1
-else jumps.split(" ").filter { it.matches(Regex("""\d+""")) }.map { it.toInt() }.max() ?: -1
+else jumps.split(Regex("""\s+""")).filter { it.matches(Regex("""\d+""")) }.map { it.toInt() }.max() ?: -1
 
 /**
  * Сложная
@@ -170,7 +170,7 @@ fun plusMinus(expression: String): Int =
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
 fun firstDuplicateIndex(str: String): Int =
-        Regex("""(.+)\s\1""").find(str.toLowerCase())?.range?.first ?: -1
+        Regex("""(.+)\s\1""", RegexOption.IGNORE_CASE).find(str)?.range?.first ?: -1
 
 /**
  * Сложная
@@ -184,7 +184,7 @@ fun firstDuplicateIndex(str: String): Int =
  * Все цены должны быть больше либо равны нуля.
  */
 fun mostExpensive(description: String): String =
-        if (description.matches(Regex("""(?:[А-Я][а-я]*\s\d+.?\d)(?:;\s[А-Я][а-я]*\s\d+.?\d)*""")))
+        if (description.matches(Regex("""(?:.*\s\d+(\.\d+)?)(?:;\s.*\s\d+(.\d+)?)*""")))
             description.split(Regex("""\s*;\s*""")).maxBy { it.split(" ")[1].toDouble() }
                     ?.split(" ")?.get(0) ?: ""
         else ""
@@ -273,7 +273,7 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
     for (s in commands) {
         if (s != '[' && s != ']') continue
         if (s == '[') sas.add(s)
-        else if (s == ']' && sas.last() == '[') sas.removeAt(sas.lastIndex)
+        else if (s == ']' && (sas.last() == '[' || sas.isEmpty())) sas.removeAt(sas.lastIndex)
         else throw IllegalArgumentException()
     }
     var cmds = 0
