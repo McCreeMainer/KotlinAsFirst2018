@@ -273,7 +273,7 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
     for (s in commands) {
         if (s != '[' && s != ']') continue
         if (s == '[') sas.add(s)
-        else if (s == ']' && (sas.last() == '[' || sas.isEmpty())) sas.removeAt(sas.lastIndex)
+        else if (s == ']' && (sas.last() == '[' && sas.isNotEmpty())) sas.removeAt(sas.lastIndex)
         else throw IllegalArgumentException()
     }
     var cmds = 0

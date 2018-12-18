@@ -54,14 +54,14 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
  *
  */
 fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
-    val reader = File(inputName).bufferedReader().readLines().joinToString("\n").toLowerCase()
+    val reader = File(inputName).bufferedReader().readLines().joinToString("\n")
     val mp = mutableMapOf<String, Int>()
     substrings.forEach {
         mp[it] = 0
-        var t = Regex(it.toLowerCase()).find(reader)
+        var t = Regex(it, RegexOption.IGNORE_CASE).find(reader)
         while (t != null) {
             mp[it] = (mp[it] ?: 0) + 1
-            t = Regex(it.toLowerCase()).find(reader, t.range.first + 1)
+            t = Regex(it, RegexOption.IGNORE_CASE).find(reader, t.range.first + 1)
         }
     }
     return mp
@@ -122,10 +122,9 @@ fun sibilants(inputName: String, outputName: String) {
 fun centerFile(inputName: String, outputName: String) {
     val reader = File(inputName).bufferedReader().readLines()
     val wrtr = File(outputName).bufferedWriter()
-    val mx = reader.map { it.length }.max() ?: 0
+    val mx = reader.map { it.trim().length }.max() ?: 0
     reader.forEach {
-        var str = it.trim()
-        for (i in 0 until (mx - str.length) / 2) str = " " + str
+        var str = " ".repeat((mx - it.trim().length) / 2) + it.trim()
         wrtr.write(str)
         wrtr.newLine()
     }
@@ -206,9 +205,9 @@ fun top20Words(inputName: String): Map<String, Int> {
     val reader = File(inputName).bufferedReader().readLines()
     val mp = mutableMapOf<String, Int>()
     if (reader.isNotEmpty())
-        reader.joinToString(" ").toLowerCase().split(Regex("""[^a-zA-Zа-яА-ЯёЁ]+"""))
+        reader.joinToString(" ").toLowerCase().split(Regex("""[^a-zа-яё]+"""))
                 .forEach { mp[it] = (mp[it] ?: 0) + 1 }
-    return mp.toList().sortedByDescending { it.second }.take(20).toMap()
+    return mp.toList().filter { it.first != "" }.sortedByDescending { it.second }.take(20).toMap()
 }
 
 /**
@@ -249,17 +248,13 @@ fun top20Words(inputName: String): Map<String, Int> {
 fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: String) {
     val reader = File(inputName).bufferedReader().readLines()
     val wrtr = File(outputName).bufferedWriter()
-    var a = true
     reader.forEach {
         for (i in 0 until it.length) {
             var str = it[i].toString()
             if (dictionary[it[i].toUpperCase()] != null || dictionary[it[i].toLowerCase()] != null)
                 str = dictionary[it[i].toUpperCase()]?.toLowerCase() ?: dictionary[it[i].toLowerCase()]?.toLowerCase()
                         ?: ""
-            if (a) {
-                str = str.capitalize()
-                a = false
-            }
+            if (it[i] == it[i].toUpperCase()) str = str.capitalize()
             wrtr.write(str)
         }
         wrtr.newLine()
@@ -294,9 +289,9 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
     val wrtr = File(outputName).bufferedWriter()
     val reader = File(inputName).bufferedReader().readLines()
-    val mx = reader.maxBy { it.length }?.length ?: 0
+    val mx = reader.filter { it.toLowerCase().toSet().size == it.length }.maxBy { it.length }?.length ?: 0
     val str = mutableListOf<String>()
-    reader.forEach { if (it.toLowerCase().toSet().size == it.length && it.length == mx) str.add(it) }
+    reader.forEach { if (it.length == mx) str.add(it) }
     wrtr.write(reader.filter { it.toLowerCase().toSet().size == it.length && it.length == mx }.joinToString(", "))
     wrtr.close()
 }
@@ -347,14 +342,58 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val wrtr = File(outputName).bufferedWriter()
     val reader = File(inputName).bufferedReader().readLines()
+    var p = true
+    var i = false
+    var b = false
+    var s = false
+    var trip = false
+    var nxt = 0
     wrtr.write("<html>\n<body>\n<p>\n")
     reader.forEach {
-        val str = it
-        if (it.isEmpty()) wrtr.write("</p>\n<p>")
-        else wrtr.write(str)
+        if (it.isEmpty()) {
+            if (p) wrtr.write("</p>\n<p>")
+            else {
+                wrtr.write("<p>")
+                p = !p
+            }
+        } else {
+
+            for (str in 0 until it.length) {
+                if (nxt > 0) {
+                    nxt--
+                    continue
+                } else when {
+                    it[str] == '*' && it[str + 1] == '*' && it[str + 2] == '*' -> {
+                        if (!trip && it.indexOf("***", str + 3) != -1) wrtr.write("<b><i>") else {
+                            if (it[it.lastIndexOf("*", str - 1) - 1] == '*') wrtr.write("</b></i>")
+                            else wrtr.write("</i></b>")
+                        }
+
+                        nxt = 2
+                        trip = !trip
+                    }
+                    it[str] == '*' && it[str + 1] == '*' -> {
+                        if (!b && it.indexOf("**", str + 2) != -1) wrtr.write("<b>") else wrtr.write("</b>")
+                        nxt = 1
+                        b = !b
+                    }
+                    it[str] == '~' && it[str + 1] == '~' -> {
+                        if (!s && it.indexOf("~~", str + 2) != -1) wrtr.write("<s>") else wrtr.write("</s>")
+                        nxt = 1
+                        s = !s
+                    }
+                    it[str] == '*' -> {
+                        if (!i && it.indexOf("*", str + 1) != -1) wrtr.write("<i>") else wrtr.write("</i>")
+                        i = !i
+                    }
+                    else -> wrtr.write(it[str].toString())
+                }
+            }
+        }
         wrtr.newLine()
     }
-    wrtr.write("</p>\n</html>\n</body>")
+    if (p) wrtr.write("</p>")
+    wrtr.write("\n</body>\n</html>")
     wrtr.close()
 }
 
