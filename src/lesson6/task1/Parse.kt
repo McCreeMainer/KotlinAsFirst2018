@@ -94,7 +94,7 @@ fun dateStrToDigit(str: String): String {
  * входными данными.
  */
 fun dateDigitToStr(digital: String): String {
-    var sas = digital.split(".").toList()
+    val sas = digital.split(".").toList()
     val mnts = mapOf("01" to "января", "02" to "февраля", "03" to "марта", "04" to "апреля", "05" to "мая",
             "06" to "июня", "07" to "июля", "08" to "августа", "09" to "сентября", "10" to "октября", "11" to "ноября",
             "12" to "декабря")
@@ -128,8 +128,9 @@ fun flattenPhoneNumber(phone: String): String =
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = if (!jumps.matches(Regex("""^(?:[-%]|\d+)(?:\s+(?:\d+|[-%]))*$"""))) -1
-else jumps.split(Regex("""\s+""")).filter { it.matches(Regex("""\d+""")) }.map { it.toInt() }.max() ?: -1
+fun bestLongJump(jumps: String): Int =
+        if (!jumps.matches(Regex("""^(?:\d+|[\s\-%])*\d+(?:\d+|[\s\-%])*$"""))) -1
+        else jumps.split(Regex("""\s+(?:[-%]\s+)*""")).map { it.toInt() }.max() ?: -1
 
 /**
  * Сложная
@@ -169,8 +170,10 @@ fun plusMinus(expression: String): Int =
  * Вернуть индекс начала первого повторяющегося слова, или -1, если повторов нет.
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
-fun firstDuplicateIndex(str: String): Int =
-        Regex("""(.+)\s\1""", RegexOption.IGNORE_CASE).find(str)?.range?.first ?: -1
+fun firstDuplicateIndex(str: String): Int {
+    println(str)
+    return Regex("""(\S+)(?=\s\1)""", RegexOption.IGNORE_CASE).find(str)?.range?.first ?: -1
+}
 
 /**
  * Сложная
@@ -269,17 +272,17 @@ fun prv(commands: String, i: Int): Int {
 }
 
 fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
-    val sas = mutableListOf<Char>()
+    var sas = 0
     for (s in commands) {
         if (s != '[' && s != ']') continue
-        if (s == '[') sas.add(s)
-        else if (s == ']' && (sas.last() == '[' && sas.isNotEmpty())) sas.removeAt(sas.lastIndex)
+        if (s == '[') sas++
+        else if (s == ']' && sas > 0) sas--
         else throw IllegalArgumentException()
     }
     var cmds = 0
     var position = cells / 2
     val cell = MutableList(cells) { 0 }
-    if (!commands.matches(Regex("""^[-+<>\[\]\s]*$""")) || sas.isNotEmpty()) throw IllegalArgumentException()
+    if (!commands.matches(Regex("""^[-+<>\[\]\s]*$""")) || sas != 0) throw IllegalArgumentException()
     for (i in 0 until limit) {
         if (cmds >= commands.length) break
         when (commands[cmds]) {

@@ -2,6 +2,7 @@
 
 package lesson5.task1
 
+import javax.print.attribute.SetOfIntegerSyntax
 import kotlin.math.max
 
 /**
@@ -341,27 +342,11 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  *   ) -> emptySet()
  */
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-    if (treasures.isEmpty()) return setOf()
-    val list = mutableMapOf<String, MutableList<Int>>()
-    val sas = mutableMapOf<String, MutableList<String>>()
-    var cost = MutableList(capacity - 1) { 0 }
-    var tresur = MutableList(capacity - 1) { treasures.keys.toList()[0] }
+    val sas = MutableList(capacity + 1) { 0 to setOf<String>() }
     treasures.forEach {
-        for (i in 0..capacity) {
-            if (i < it.value.first) {
-                list[it.key]?.add(cost[i])
-            }
-            else if (cost[i] > cost[i - it.value.first] + it.value.second) {
-                list[it.key]!!.add(cost[i])
-                sas[it.key]?.add(tresur[i])
-            }
-            else {
-                list[it.key]?.add(cost[i - it.value.first] + it.value.second)
-            }
-        }
-        cost = list[it.key] ?: cost
-        tresur = sas[it.key] ?: tresur
+        if (it.value.first <= capacity) for (i in it.value.first..capacity) sas[i] =
+                if (sas[i].first > sas[i - it.value.first].first + it.value.second) sas[i]
+                else (sas[i - it.value.first].first + it.value.second) to sas[i].second + it.key
     }
-
-    return setOf()
+    return sas.maxBy { it.first }?.second ?: setOf()
 }

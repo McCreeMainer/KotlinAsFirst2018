@@ -1,7 +1,8 @@
 @file:Suppress("UNUSED_PARAMETER", "ConvertCallChainIntoSequence", "IMPLICIT_CAST_TO_ANY")
 
 package lesson7.task1
-
+import lesson3.task1.digitNumber
+import java.io.BufferedWriter
 import java.io.File
 
 /**
@@ -250,11 +251,14 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
     val wrtr = File(outputName).bufferedWriter()
     reader.forEach {
         for (i in 0 until it.length) {
-            var str = it[i].toString()
-            if (dictionary[it[i].toUpperCase()] != null || dictionary[it[i].toLowerCase()] != null)
-                str = dictionary[it[i].toUpperCase()]?.toLowerCase() ?: dictionary[it[i].toLowerCase()]?.toLowerCase()
-                        ?: ""
-            if (it[i] == it[i].toUpperCase()) str = str.capitalize()
+            val str = when {
+                dictionary[it[i]] != null || dictionary[it[i].toUpperCase()] != null ->
+                    dictionary[it[i]]?.toLowerCase()
+                            ?: dictionary[it[i].toUpperCase()]?.toLowerCase() ?: ""
+                dictionary[it[i].toLowerCase()] != null ->
+                    dictionary[it[i].toLowerCase()]?.toLowerCase()?.capitalize() ?: ""
+                else -> it[i].toString()
+            }
             wrtr.write(str)
         }
         wrtr.newLine()
@@ -342,36 +346,19 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val wrtr = File(outputName).bufferedWriter()
     val reader = File(inputName).bufferedReader().readLines()
-    var p = true
     var i = false
     var b = false
     var s = false
-    var trip = false
     var nxt = 0
-    wrtr.write("<html>\n<body>\n<p>\n")
+    wrtr.write("<html><body><p>")
     reader.forEach {
-        if (it.isEmpty()) {
-            if (p) wrtr.write("</p>\n<p>")
-            else {
-                wrtr.write("<p>")
-                p = !p
-            }
-        } else {
-
+        if (it.isEmpty()) wrtr.write("</p><p>")
+        else {
             for (str in 0 until it.length) {
                 if (nxt > 0) {
                     nxt--
                     continue
                 } else when {
-                    it[str] == '*' && it[str + 1] == '*' && it[str + 2] == '*' -> {
-                        if (!trip && it.indexOf("***", str + 3) != -1) wrtr.write("<b><i>") else {
-                            if (it[it.lastIndexOf("*", str - 1) - 1] == '*') wrtr.write("</b></i>")
-                            else wrtr.write("</i></b>")
-                        }
-
-                        nxt = 2
-                        trip = !trip
-                    }
                     it[str] == '*' && it[str + 1] == '*' -> {
                         if (!b && it.indexOf("**", str + 2) != -1) wrtr.write("<b>") else wrtr.write("</b>")
                         nxt = 1
@@ -390,10 +377,8 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
                 }
             }
         }
-        wrtr.newLine()
     }
-    if (p) wrtr.write("</p>")
-    wrtr.write("\n</body>\n</html>")
+    wrtr.write("</p></body></html>")
     wrtr.close()
 }
 
@@ -491,7 +476,12 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun markdownToHtmlLists(inputName: String, outputName: String) {
-    TODO()
+    val rdr = File(inputName).bufferedReader().readLines()
+    val wrtr = File(outputName).bufferedWriter()
+    wrtr.write("<html><body>")
+    htmlList(rdr, wrtr, false)
+    wrtr.write("</body></html>")
+    wrtr.close()
 }
 
 /**
@@ -503,7 +493,82 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
  *
  */
 fun markdownToHtml(inputName: String, outputName: String) {
-    TODO()
+    val rdr = File(inputName).bufferedReader().readLines()
+    val wrtr = File(outputName).bufferedWriter()
+    wrtr.write("<html><body>")
+    htmlList(rdr, wrtr, true)
+    wrtr.write("</body></html>")
+    wrtr.close()
+}
+
+fun htmlList(rdr: List<String>, wrtr: BufferedWriter, lst: Boolean) {
+    var i = false
+    var b = false
+    var s = false
+    var nxt = 0
+    var sas = -1
+    val list = mutableListOf<String>()
+    rdr.forEach {
+        var type = ""
+        var res = it
+        if (Regex("""^\s*\*.*$""").matches(it)) {
+            res = res.replace(Regex("""^\s*\*\s*"""), "")
+            type = "ul"
+        } else {
+            res = res.replace(Regex("""^\s*\d+\.\s*"""), "")
+            type = "ol"
+        }
+        var txt = res
+        if (lst) {
+            txt = ""
+            if (res.isEmpty()) txt = "</p><p>"
+            else {
+                for (str in 0 until res.length) {
+                    if (nxt > 0) {
+                        nxt--
+                        continue
+                    } else when {
+                        it[str] == '*' && it[str + 1] == '*' -> {
+                            txt += if (!b && it.indexOf("**", str + 2) != -1) "<b>" else "</b>"
+                            nxt = 1
+                            b = !b
+                        }
+                        it[str] == '~' && it[str + 1] == '~' -> {
+                            txt += if (!s && it.indexOf("~~", str + 2) != -1) "<s>" else "</s>"
+                            nxt = 1
+                            s = !s
+                        }
+                        it[str] == '*' -> {
+                            txt += if (!i && it.indexOf("*", str + 1) != -1) "<i>" else "</i>"
+                            i = !i
+                        }
+                        else -> txt += res[str].toString()
+                    }
+                }
+            }
+        }
+        val sos = Regex("""(?:\*|\d+\.)""").find(it)!!.range.first
+        if (sos > sas) {
+            list.add(type)
+            wrtr.write("<$type><li>$res")
+            sas = sos
+        } else {
+            if (sos < sas) {
+                for (i in sos + 4..sas step 4) {
+                    val cls = list.last()
+                    wrtr.write("</li></$cls>")
+                    list.removeAt(list.lastIndex)
+                }
+                sas = sos
+            }
+            wrtr.write("</li><li>$txt")
+        }
+    }
+    while (list.isNotEmpty()) {
+        val cls = list.last()
+        wrtr.write("</li></$cls>")
+        list.removeAt(list.lastIndex)
+    }
 }
 
 /**
@@ -532,7 +597,30 @@ fun markdownToHtml(inputName: String, outputName: String) {
  *
  */
 fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
-    TODO()
+    val wrtr = File(outputName).bufferedWriter()
+    var sas = rhv
+    var thn = 1
+    val list = mutableListOf<Int>()
+    while (sas != 0) {
+        list.add(lhv * (sas % 10) * thn)
+        sas /= 10
+        thn *= 10
+    }
+    val res = list.sum()
+    wrtr.write(" ".repeat(digitNumber(res) + 1 - digitNumber(lhv)) + lhv + "\n")
+    wrtr.write("*" + " ".repeat(digitNumber(res) - digitNumber(rhv)) + rhv + "\n")
+    wrtr.write("-".repeat(digitNumber(res) + 1) + "\n")
+    thn = 1
+    for (i in 0 until list.size) {
+        var str = "+"
+        if (i == 0) str = " "
+        str += " ".repeat(digitNumber(res) - digitNumber(list[i])) + list[i] / thn
+        wrtr.write(str + "\n")
+        thn *= 10
+    }
+    wrtr.write("-".repeat(digitNumber(res) + 1) + "\n")
+    wrtr.write(" $res\n")
+    wrtr.close()
 }
 
 
