@@ -1,6 +1,7 @@
 @file:Suppress("UNUSED_PARAMETER", "ConvertCallChainIntoSequence", "IMPLICIT_CAST_TO_ANY")
 
 package lesson7.task1
+
 import lesson3.task1.digitNumber
 import java.io.BufferedWriter
 import java.io.File
@@ -345,42 +346,13 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val wrtr = File(outputName).bufferedWriter()
-    val reader = File(inputName).bufferedReader().readLines()
-    var i = false
-    var b = false
-    var s = false
-    var nxt = 0
-    wrtr.write("<html><body><p>")
-    reader.forEach {
-        if (it.isEmpty()) wrtr.write("</p><p>")
-        else {
-            for (str in 0 until it.length) {
-                if (nxt > 0) {
-                    nxt--
-                    continue
-                } else when {
-                    it[str] == '*' && it[str + 1] == '*' -> {
-                        if (!b && it.indexOf("**", str + 2) != -1) wrtr.write("<b>") else wrtr.write("</b>")
-                        nxt = 1
-                        b = !b
-                    }
-                    it[str] == '~' && it[str + 1] == '~' -> {
-                        if (!s && it.indexOf("~~", str + 2) != -1) wrtr.write("<s>") else wrtr.write("</s>")
-                        nxt = 1
-                        s = !s
-                    }
-                    it[str] == '*' -> {
-                        if (!i && it.indexOf("*", str + 1) != -1) wrtr.write("<i>") else wrtr.write("</i>")
-                        i = !i
-                    }
-                    else -> wrtr.write(it[str].toString())
-                }
-            }
-        }
-    }
-    wrtr.write("</p></body></html>")
+    val rdr = File(inputName).bufferedReader().readLines()
+    wrtr.write("<html><body>")
+    htmlAll(rdr, wrtr, true, false)
+    wrtr.write("</body></html>")
     wrtr.close()
 }
+
 
 /**
  * Сложная
@@ -479,7 +451,7 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
     val rdr = File(inputName).bufferedReader().readLines()
     val wrtr = File(outputName).bufferedWriter()
     wrtr.write("<html><body>")
-    htmlList(rdr, wrtr, false)
+    htmlAll(rdr, wrtr, false, true)
     wrtr.write("</body></html>")
     wrtr.close()
 }
@@ -496,72 +468,92 @@ fun markdownToHtml(inputName: String, outputName: String) {
     val rdr = File(inputName).bufferedReader().readLines()
     val wrtr = File(outputName).bufferedWriter()
     wrtr.write("<html><body>")
-    htmlList(rdr, wrtr, true)
+    htmlAll(rdr, wrtr, true, true)
     wrtr.write("</body></html>")
     wrtr.close()
 }
 
-fun htmlList(rdr: List<String>, wrtr: BufferedWriter, lst: Boolean) {
-    var i = false
+fun htmlAll(rdr: List<String>, wrtr: BufferedWriter, smpl: Boolean, lst: Boolean) {
+    var p = false
     var b = false
     var s = false
+    var i = false
     var nxt = 0
     var sas = -1
     val list = mutableListOf<String>()
     rdr.forEach {
-        var type = ""
         var res = it
-        if (Regex("""^\s*\*.*$""").matches(it)) {
-            res = res.replace(Regex("""^\s*\*\s*"""), "")
-            type = "ul"
+        var type: String
+        var txt = ""
+
+        if ((Regex("""^\s*\*.*$""").matches(it) || Regex("""^\s*\d+\..*$""").matches(it) && lst)) {
+            if (smpl && p) {
+                wrtr.write("</p>")
+                p = !p
+            }
+            if (Regex("""^\s*\*.*$""").matches(it)) {
+                res = res.replace(Regex("""^\s*\*\s*"""), "")
+                type = "ul"
+            } else {
+                res = res.replace(Regex("""^\s*\d+\.\s*"""), "")
+                type = "ol"
+            }
+            val sos = Regex("""(?:\*|\d+\.)""").find(it)!!.range.first
+            if (sos > sas) {
+                list.add(type)
+                wrtr.write("<$type><li>$res")
+                sas = sos
+            } else {
+                if (sos < sas) {
+                    for (i in sos + 4..sas step 4) {
+                        val cls = list.last()
+                        wrtr.write("</li></$cls>")
+                        list.removeAt(list.lastIndex)
+                    }
+                    sas = sos
+                }
+                wrtr.write("</li><li>$res")
+            }
         } else {
-            res = res.replace(Regex("""^\s*\d+\.\s*"""), "")
-            type = "ol"
-        }
-        var txt = res
-        if (lst) {
-            txt = ""
-            if (res.isEmpty()) txt = "</p><p>"
-            else {
-                for (str in 0 until res.length) {
-                    if (nxt > 0) {
-                        nxt--
-                        continue
-                    } else when {
-                        it[str] == '*' && it[str + 1] == '*' -> {
-                            txt += if (!b && it.indexOf("**", str + 2) != -1) "<b>" else "</b>"
-                            nxt = 1
-                            b = !b
+            while (list.isNotEmpty()) {
+                val cls = list.last()
+                wrtr.write("</li></$cls>")
+                list.removeAt(list.lastIndex)
+            }
+            sas = -1
+
+            if (smpl) {
+                if (!p) {
+                    wrtr.write("<p>")
+                    p = !p
+                }
+                if (it.isEmpty()) txt = "</p><p>"
+                else {
+                    for (str in 0 until res.length) {
+                        if (nxt > 0) {
+                            nxt--
+                            continue
+                        } else when {
+                            it[str] == '*' && it[str + 1] == '*' -> {
+                                txt += if (!b && it.indexOf("**", str + 2) != -1) "<b>" else "</b>"
+                                nxt = 1
+                                b = !b
+                            }
+                            it[str] == '~' && it[str + 1] == '~' -> {
+                                txt += if (!s && it.indexOf("~~", str + 2) != -1) "<s>" else "</s>"
+                                nxt = 1
+                                s = !s
+                            }
+                            it[str] == '*' -> {
+                                txt += if (!i && it.indexOf("*", str + 1) != -1) "<i>" else "</i>"
+                                i = !i
+                            }
+                            else -> txt += res[str].toString()
                         }
-                        it[str] == '~' && it[str + 1] == '~' -> {
-                            txt += if (!s && it.indexOf("~~", str + 2) != -1) "<s>" else "</s>"
-                            nxt = 1
-                            s = !s
-                        }
-                        it[str] == '*' -> {
-                            txt += if (!i && it.indexOf("*", str + 1) != -1) "<i>" else "</i>"
-                            i = !i
-                        }
-                        else -> txt += res[str].toString()
                     }
                 }
+                wrtr.write(txt)
             }
-        }
-        val sos = Regex("""(?:\*|\d+\.)""").find(it)!!.range.first
-        if (sos > sas) {
-            list.add(type)
-            wrtr.write("<$type><li>$res")
-            sas = sos
-        } else {
-            if (sos < sas) {
-                for (i in sos + 4..sas step 4) {
-                    val cls = list.last()
-                    wrtr.write("</li></$cls>")
-                    list.removeAt(list.lastIndex)
-                }
-                sas = sos
-            }
-            wrtr.write("</li><li>$txt")
         }
     }
     while (list.isNotEmpty()) {
@@ -569,6 +561,7 @@ fun htmlList(rdr: List<String>, wrtr: BufferedWriter, lst: Boolean) {
         wrtr.write("</li></$cls>")
         list.removeAt(list.lastIndex)
     }
+    if (smpl && p) wrtr.write("</p>")
 }
 
 /**
