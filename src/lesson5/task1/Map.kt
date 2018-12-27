@@ -346,7 +346,7 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     treasures.forEach {
         if (it.value.first <= capacity) for (i in it.value.first..capacity) sas[i] =
                 if (sas[i].first > sas[i - it.value.first].first + it.value.second) sas[i]
-                else (sas[i - it.value.first].first + it.value.second) to sas[i].second + it.key
+                else (sas[i].first + it.value.second) to sas[i].second + it.key
     }
     return sas.maxBy { it.first }?.second ?: setOf()
 }
