@@ -129,8 +129,8 @@ fun flattenPhoneNumber(phone: String): String =
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
 fun bestLongJump(jumps: String): Int =
-        if (!jumps.matches(Regex("""^(?:\d+|[\s\-%])*\d+(?:\d+|[\s\-%])*$"""))) -1
-        else jumps.split(Regex("""\s+(?:[-%]\s+)*""")).map { it.toInt() }.max() ?: -1
+        if (!jumps.matches(Regex("""^(?:\d+|[\-%])(?:\s+(?:\d+|[\-%]))*$"""))) -1
+        else jumps.split(Regex("""\s+""")).filter { it.matches(Regex("""\d+""")) }.map { it.toInt() }.max() ?: -1
 
 /**
  * Сложная
@@ -170,10 +170,8 @@ fun plusMinus(expression: String): Int =
  * Вернуть индекс начала первого повторяющегося слова, или -1, если повторов нет.
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
-fun firstDuplicateIndex(str: String): Int {
-    println(str)
-    return Regex("""(\S+)(?=\s\1)""", RegexOption.IGNORE_CASE).find(str)?.range?.first ?: -1
-}
+fun firstDuplicateIndex(str: String): Int =
+        Regex("""(\S+)(?=\s\1)""", RegexOption.IGNORE_CASE).find(str)?.range?.first ?: -1
 
 /**
  * Сложная

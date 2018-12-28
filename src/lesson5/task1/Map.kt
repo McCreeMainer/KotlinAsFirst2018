@@ -204,6 +204,8 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  *        )
  */
 fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> {
+    TODO()
+    /*
     val sas = friends.toMutableMap()
     var res = friends.toMutableMap()
     sas.forEach {
@@ -223,6 +225,7 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
         it.value.forEach { init -> if (init == it.key) res[it.key] = res[it.key]!! - init }
     }
     return res
+    */
 }
 
 
@@ -342,11 +345,20 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  *   ) -> emptySet()
  */
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-    val sas = MutableList(capacity + 1) { 0 to setOf<String>() }
-    treasures.forEach {
-        if (it.value.first <= capacity) for (i in it.value.first..capacity) sas[i] =
-                if (sas[i].first > sas[i - it.value.first].first + it.value.second) sas[i]
-                else (sas[i].first + it.value.second) to sas[i].second + it.key
+    TODO()
+    /*
+    val kys = treasures.keys.toList()
+    val w = treasures.values.map { it.first }
+    val v = treasures.values.map { it.second }
+    val sas = mutableListOf(MutableList(capacity + 1) { 0 to setOf<String>() })
+    for (i in 1..treasures.size) {
+        if (w[i] <= capacity) for (j in 0..capacity) {
+            if (w[i - 1] > j) sas[i][j] = sas[i - 1][j]
+            else if (sas[i - 1][j].first > sas[i - 1][j - w[i - 1]].first + v[i - 1]) sas[i][j] = sas[i - 1][j]
+            else sas[i - 1][j - w[i - 1]].first + v[i - 1] to sas[i - 1][j - w[i - 1]].second + kys[i - 1]
+        }
     }
-    return sas.maxBy { it.first }?.second ?: setOf()
+    println(sas.maxBy { it.maxBy { init -> init.first }?.first ?: 0 })
+    return setOf()
+    */
 }

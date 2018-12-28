@@ -126,7 +126,7 @@ fun centerFile(inputName: String, outputName: String) {
     val wrtr = File(outputName).bufferedWriter()
     val mx = reader.map { it.trim().length }.max() ?: 0
     reader.forEach {
-        var str = " ".repeat((mx - it.trim().length) / 2) + it.trim()
+        val str = " ".repeat((mx - it.trim().length) / 2) + it.trim()
         wrtr.write(str)
         wrtr.newLine()
     }
@@ -169,8 +169,7 @@ fun alignFileByWidth(inputName: String, outputName: String) {
             val spcs = mx - it.length
             val spc = it.split(" ").size - 1
             var b = spcs % spc
-            var ll = " "
-            for (i in 0 until spcs / spc) ll += " "
+            val ll = " ".repeat(spcs / spc + 1)
             for (i in 0 until it.length) {
                 val str = if (it[i] == ' ') ll + if (b > 0) {
                     b--
@@ -248,6 +247,8 @@ fun top20Words(inputName: String): Map<String, Int> {
  * Обратите внимание: данная функция не имеет возвращаемого значения
  */
 fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: String) {
+    TODO()
+    /*
     val reader = File(inputName).bufferedReader().readLines()
     val wrtr = File(outputName).bufferedWriter()
     reader.forEach {
@@ -265,6 +266,7 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
         wrtr.newLine()
     }
     wrtr.close()
+    */
 }
 
 /**
@@ -295,8 +297,6 @@ fun chooseLongestChaoticWord(inputName: String, outputName: String) {
     val wrtr = File(outputName).bufferedWriter()
     val reader = File(inputName).bufferedReader().readLines()
     val mx = reader.filter { it.toLowerCase().toSet().size == it.length }.maxBy { it.length }?.length ?: 0
-    val str = mutableListOf<String>()
-    reader.forEach { if (it.length == mx) str.add(it) }
     wrtr.write(reader.filter { it.toLowerCase().toSet().size == it.length && it.length == mx }.joinToString(", "))
     wrtr.close()
 }
@@ -345,12 +345,15 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
+    TODO()
+    /*
     val wrtr = File(outputName).bufferedWriter()
     val rdr = File(inputName).bufferedReader().readLines()
     wrtr.write("<html><body>")
     htmlAll(rdr, wrtr, true, false)
     wrtr.write("</body></html>")
     wrtr.close()
+    */
 }
 
 
@@ -483,7 +486,7 @@ fun htmlAll(rdr: List<String>, wrtr: BufferedWriter, smpl: Boolean, lst: Boolean
     val list = mutableListOf<String>()
     rdr.forEach {
         var res = it
-        var type: String
+        val type: String
         var txt = ""
 
         if ((Regex("""^\s*\*.*$""").matches(it) || Regex("""^\s*\d+\..*$""").matches(it) && lst)) {
@@ -607,7 +610,8 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
     for (i in 0 until list.size) {
         var str = "+"
         if (i == 0) str = " "
-        str += " ".repeat(digitNumber(res) - digitNumber(list[i])) + list[i] / thn
+        val nnnnn = if (list[i] == 0) "0" else list[i] / thn
+        str += " ".repeat(digitNumber(res) - digitNumber(list[i])) + nnnnn
         wrtr.write(str + "\n")
         thn *= 10
     }
